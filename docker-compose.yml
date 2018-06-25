@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  redis:
+    image: redis:latest
+    command: ["redis-server", "--appendonly", "yes"]
+    hostname: redis
+    networks:
+      - redis-net
+
+  filepreview:
+    image: schulcloud/filepreview:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      USERNAME: filepreview
+      PASSWORD: strongPassword
+      REDIS_HOST: redis
+    ports:
+      - 3000:3000
+    networks:
+      - redis-net
+    depends_on:
+      - redis
+
+networks:
+  redis-net:

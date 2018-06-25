@@ -1,0 +1,16 @@
+{
+    "app": {
+        "port": "PORT",
+        "authUser": {
+            "username": "USERNAME",
+            "password": "PASSWORD"
+        }
+    },
+    "jobqueue": {
+        "redis": {
+          "host": "REDIS_HOST",
+          "port": "REDIS_PORT",
+          "auth": "REDIS_AUTH"
+        }
+    }
+}

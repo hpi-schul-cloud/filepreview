@@ -18,7 +18,6 @@
     "passport-http": "^0.3.0",
     "request": "^2.87.0",
     "request-promise": "^4.2.2",
-    "sync-request": "^6.0.0",
     "tmp": "0.0.33",
     "util": "^0.11.0",
     "winston": "^3.0.0",

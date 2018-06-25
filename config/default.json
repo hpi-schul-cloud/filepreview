@@ -1,0 +1,24 @@
+{
+    "app": {
+        "port": 3000,
+        "authUser": {
+            "username": "testuser",
+            "password": "test1234"
+        },
+        "options": {
+            "width": 640,
+            "background": "#fff",
+            "keepAspect": true,
+            "pdf": false,
+            "pdf_path": "/tmp/pdfs",
+            "outputFormat": "png"
+        }
+    },
+    "jobqueue": {
+        "prefix": "k",
+        "redis": {
+          "host": "127.0.0.1",
+          "port": 6379
+        }
+    }
+}

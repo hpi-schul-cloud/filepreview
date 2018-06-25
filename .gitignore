@@ -1,0 +1,8 @@
+node_modules
+*.log
+*.log.gz
+config/*.json
+.audit.json
+Vagrantfile
+package-lock.json
+tests

@@ -23,6 +23,8 @@ services:
       - redis-net
     depends_on:
       - redis
+    volumes:
+      - ./app.js:/home/node/app/app.js
 
 networks:
   redis-net:

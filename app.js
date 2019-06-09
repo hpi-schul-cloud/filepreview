@@ -17,9 +17,6 @@ const xml2js = require('xml2js');
 // get mimetype definitions from filepreview-es6 package
 const mimetypes = require('./node_modules/filepreview-es6/db.json');
 
-const TOKEN =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6ImFjY2VzcyJ9.eyJhY2NvdW50SWQiOiIwMDAwZDIxMzgxNmFiYmE1ODQ3MTRjYWEiLCJ1c2VySWQiOiIwMDAwZDIxMzgxNmFiYmE1ODQ3MTRjMGEiLCJpYXQiOjE1NTkyMjIzMDEsImV4cCI6MTU2MTgxNDMwMSwiYXVkIjoiaHR0cHM6Ly9zY2h1bC1jbG91ZC5vcmciLCJpc3MiOiJmZWF0aGVycyIsInN1YiI6ImFub255bW91cyIsImp0aSI6ImY3ODk5YjI4LWM4MGMtNDhmMS1hOWM0LWVhZDE4NzdjZmFjNyJ9.VELXPswSHB0plUtGlj3j6848AlPvifwdnb4IJnt0vAo';
-
 // config definitions
 const appConfig = config.get('app');
 const authUsers = [appConfig.authUser];
@@ -159,7 +156,6 @@ function createJob(options, download_url, signed_s3_url, callback_url) {
 
     job.on('complete', function(result) {
         logger.info(util.format('completed job, result: %s', result));
-        console.log(callback_url);
         return responseSuccess(result, callback_url);
     });
 }
@@ -186,8 +182,7 @@ function responseSuccess(previewUrl, callback_url) {
     request.patch(
         {
             headers: {
-                'content-type': 'application/json',
-                Cookie: 'jwt=' + TOKEN
+                'content-type': 'application/json'
             },
             url: callback_url,
             body: JSON.stringify({
@@ -218,10 +213,7 @@ function checkDownload(download_url, done, next) {
     request.head(
         download_url,
         {
-            timeout: 10000,
-            headers: {
-                Cookie: 'jwt=' + TOKEN
-            }
+            timeout: 10000
         },
         function(error, response) {
             if (error || response.statusCode > 200) {
@@ -265,11 +257,7 @@ function downloadFile(options, download_url, done, next) {
         done(new Error(error));
     });
 
-    request(download_url, {
-        headers: {
-            Cookie: 'jwt=' + TOKEN
-        }
-    })
+    request(download_url)
         .on('error', function(error) {
             done(new Error(error));
         })

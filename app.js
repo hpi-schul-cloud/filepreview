@@ -74,8 +74,8 @@ filePreviewQueue.process('filePreview', function(job, done) {
     logger.debug('processing job: ' + job.id);
     handleFilePreview(
         job.data.options,
-        job.data.download_url,
-        job.data.signed_s3_url,
+        job.data.downloadUrl,
+        job.data.signedS3Url,
         done
     );
 });
@@ -97,22 +97,22 @@ app.post(
     '/filepreview',
     //passport.authenticate('basic', { session: false }),
     function(req, res) {
-        if (!req.body.callback_url)
+        if (!req.body.callbackUrl)
             return res
                 .status(422)
-                .send({ error: 'request must contain callback_url' });
-        if (!req.body.download_url)
+                .send({ error: 'request must contain callbackUrl' });
+        if (!req.body.downloadUrl)
             return res
                 .status(422)
-                .send({ error: 'request must contain download_url' });
-        if (!req.body.signed_s3_url)
+                .send({ error: 'request must contain downloadUrl' });
+        if (!req.body.signedS3Url)
             return res
                 .status(422)
-                .send({ error: 'request must contain signed_s3_url' });
+                .send({ error: 'request must contain signedS3Url' });
 
-        const callback_url = req.body.callback_url;
-        const download_url = req.body.download_url;
-        const signed_s3_url = req.body.signed_s3_url;
+        const callbackUrl = req.body.callbackUrl;
+        const downloadUrl = req.body.downloadUrl;
+        const signedS3Url = req.body.signedS3Url;
 
         let options = appConfig.options;
         if (req.body.options) {
@@ -124,25 +124,25 @@ app.post(
             options.keepAspect = false;
         }
 
-        createJob(options, download_url, signed_s3_url, callback_url);
+        createJob(options, downloadUrl, signedS3Url, callbackUrl);
         res.json('OK');
     }
 );
 
-function createJob(options, download_url, signed_s3_url, callback_url) {
+function createJob(options, downloadUrl, signedS3Url, callbackUrl) {
     logger.info('---- Start new file preview job ----');
     logger.debug({
         options: options,
-        download_url: download_url,
-        signed_s3_url,
-        signed_s3_url
+        downloadUrl: downloadUrl,
+        signedS3Url,
+        callbackUrl
     });
 
     const job = filePreviewQueue.create('filePreview', {
         options: options,
-        download_url: download_url,
-        signed_s3_url,
-        signed_s3_url
+        downloadUrl: downloadUrl,
+        signedS3Url,
+        callbackUrl
     });
 
     job.attempts(2)
@@ -151,21 +151,21 @@ function createJob(options, download_url, signed_s3_url, callback_url) {
 
     job.on('failed', function(error) {
         logger.info(util.format('failed job, result: %s', error));
-        return responseError(error, callback_url);
+        return responseError(error, callbackUrl);
     });
 
     job.on('complete', function(result) {
         logger.info(util.format('completed job, result: %s', result));
-        return responseSuccess(result, callback_url);
+        return responseSuccess(result, callbackUrl);
     });
 }
 
-function responseError(error, callback_url) {
+function responseError(error, callbackUrl) {
     logger.error(error);
     request.post(
         {
             headers: { 'content-type': 'application/json' },
-            url: callback_url,
+            url: callbackUrl,
             body: JSON.stringify({
                 error: util.format('An error occured: %s', error)
             })
@@ -178,13 +178,13 @@ function responseError(error, callback_url) {
     );
 }
 
-function responseSuccess(previewUrl, callback_url) {
+function responseSuccess(previewUrl, callbackUrl) {
     request.patch(
         {
             headers: {
                 'content-type': 'application/json'
             },
-            url: callback_url,
+            url: callbackUrl,
             body: JSON.stringify({
                 thumbnail: previewUrl
             })
@@ -198,26 +198,26 @@ function responseSuccess(previewUrl, callback_url) {
     );
 }
 
-function handleFilePreview(options, download_url, signed_s3_url, done) {
+function handleFilePreview(options, downloadUrl, signedS3Url, done) {
     logger.debug('handleFilePreview called');
 
-    //checkDownload(download_url, done, function(ext) {
-    downloadFile(options, download_url, done, function(previewFileObj) {
-        uploadFile(previewFileObj, signed_s3_url, options, done);
+    //checkDownload(downloadUrl, done, function(ext) {
+    downloadFile(options, downloadUrl, done, function(previewFileObj) {
+        uploadFile(previewFileObj, signedS3Url, options, done);
     });
     //});
 }
 
-function checkDownload(download_url, done, next) {
+function checkDownload(downloadUrl, done, next) {
     // get extension by by Content-Type
     request.head(
-        download_url,
+        downloadUrl,
         {
             timeout: 10000
         },
         function(error, response) {
             if (error || response.statusCode > 200) {
-                return done(new Error('could not get download_url meta data'));
+                return done(new Error('could not get downloadUrl meta data'));
             }
             if (!mimetypes[response.headers['content-type']].extensions[0]) {
                 return done(new Error('not supported content-type'));
@@ -230,8 +230,8 @@ function checkDownload(download_url, done, next) {
     );
 }
 
-function downloadFile(options, download_url, done, next) {
-    const ext = download_url.split('.').pop();
+function downloadFile(options, downloadUrl, done, next) {
+    const ext = downloadUrl.split('.').pop();
     const downloadFileObj = tmp.fileSync({ postfix: '.' + ext });
     logger.debug('create temp download file: ' + downloadFileObj.name);
 
@@ -257,14 +257,14 @@ function downloadFile(options, download_url, done, next) {
         done(new Error(error));
     });
 
-    request(download_url)
+    request(downloadUrl)
         .on('error', function(error) {
             done(new Error(error));
         })
         .pipe(file);
 }
 
-function uploadFile(previewFileObj, signed_s3_url, options, done) {
+function uploadFile(previewFileObj, signedS3Url, options, done) {
     logger.debug('uploadFile called');
     fs.readFile(previewFileObj.name, function(error, data) {
         if (error) {
@@ -281,7 +281,7 @@ function uploadFile(previewFileObj, signed_s3_url, options, done) {
                     )
                 },
                 body: data,
-                url: signed_s3_url
+                url: signedS3Url
             },
             function(error, response, body) {
                 previewFileObj.removeCallback();
@@ -309,7 +309,7 @@ function uploadFile(previewFileObj, signed_s3_url, options, done) {
                             }
                         });
                     } else {
-                        done(null, signed_s3_url.split('?')[0]);
+                        done(null, signedS3Url.split('?')[0]);
                     }
                 }
             }

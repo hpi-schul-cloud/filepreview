@@ -10,9 +10,8 @@ RUN apt-get update && apt-get install -y \
 COPY . /home/node/app
 
 RUN cd /home/node/app && npm install 
-RUN yarn global add nodemon
 
 WORKDIR /home/node/app
 EXPOSE 3000
 
-CMD nodemon -L app.js
+CMD npm run start

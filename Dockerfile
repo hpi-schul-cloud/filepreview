@@ -1,4 +1,4 @@
-FROM node:10.5.0-stretch
+FROM node:10.16.0-stretch
 
 RUN apt-get update && apt-get install -y \
     ghostscript \

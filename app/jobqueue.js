@@ -20,8 +20,6 @@ filePreviewQueue.process('filePreview', async function({
 }, done) {
     logger.debug(`processing job: ${id}`);
 
-    console.log(data)
-
     let signedUrl; 
     try {
         const previewFileObj = await downloadFile(data.options, data.downloadUrl)
@@ -79,7 +77,6 @@ async function uploadFile(previewFileObj, signedS3Url, options) {
             }
         })
     } catch(e) {
-        console.log(e.message)
 
         new xml2js.Parser().parseString(body, function(
             _,

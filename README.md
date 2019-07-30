@@ -56,6 +56,11 @@ The supported file-types are: [document-formats](https://www.npmjs.com/package/f
 
 The file-type detection is based on the download file's `content-type` header field. The file server **must** provide this header! The according file-type / extension mapping is taken from the [filepreview-es6 generators database](https://github.com/sahilsharmafrank/filepreview/blob/master/db.json).
 
+## Testing
+
+1. Start docker
+2. `npm run test`
+
 ## Requirements
 
 Since the filepreview service uses [kue](https://github.com/Automattic/kue) job queue, a redis server is necessary. For this, the `REDIS_HOST` has to be provided as environment variables at startup.
